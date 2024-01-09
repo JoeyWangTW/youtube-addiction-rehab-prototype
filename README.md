@@ -38,6 +38,12 @@ This Chrome extension, named "YouTube Addiction Rehab," is designed to assist us
 
 "YouTube Addiction Rehab" prioritizes user privacy. All content analyses are performed locally within the extension, ensuring that no personal data is sent to external servers.
 
+## Potential Next Steps
+- Consider more info to detemine relavence
+- Reinforce good watching habbit, and stop addictive watching
+- Personal watching habit tracking
+- Hosted service
+
 ## Contributing
 
 Contributions to "YouTube Addiction Rehab" are highly encouraged. Feel free to fork the repository, submit pull requests, or open issues for any bugs or feature enhancements you encounter.
