@@ -1,65 +1,67 @@
-let currentTitle = ""
+let currentTitle = "";
 
 function waitForElement(selector, callback) {
-  const observer = new MutationObserver(mutations => {
-      const element = document.querySelector(selector);
-      if (element && currentTitle!=element.textContent) {
-          callback(element);
-          observer.disconnect();
-      }
+  const observer = new MutationObserver((mutations) => {
+    const element = document.querySelector(selector);
+    if (element && currentTitle != element.textContent) {
+      callback(element);
+      observer.disconnect();
+    }
   });
 
   observer.observe(document.body, {
-      childList: true,
-      subtree: true
+    childList: true,
+    subtree: true,
   });
 }
 
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.message === 'getVideoDetails') {
-     waitForElement('h1.style-scope.ytd-watch-metadata yt-formatted-string', element => {
-      const title = element.textContent;
-      currentTitle = title
-      // handle descirption later
-      let description = ""
-      sendResponse({ title, description });
-    });
+  if (request.message === "getVideoDetails") {
+    waitForElement(
+      "h1.style-scope.ytd-watch-metadata yt-formatted-string",
+      (element) => {
+        const title = element.textContent;
+        currentTitle = title;
+        // handle descirption later
+        let description = "";
+        sendResponse({ title, description });
+      }
+    );
     return true;
   }
 });
 
 function insertEvaluationContainer(rating, context) {
   // Find the 'above-the-fold' container
-  const aboveTheFoldDiv = document.getElementById('above-the-fold');
+  const aboveTheFoldDiv = document.getElementById("above-the-fold");
   if (aboveTheFoldDiv) {
     // Find the 'title' element
-    const titleDiv = aboveTheFoldDiv.querySelector('#title');
+    const titleDiv = aboveTheFoldDiv.querySelector("#title");
     if (titleDiv) {
       // Create a new div element for your evaluation message
-      const evaluationDiv = document.createElement('div');
-      evaluationDiv.id = 'evaluation-container';
+      const evaluationDiv = document.createElement("div");
+      evaluationDiv.id = "evaluation-container";
       evaluationDiv.textContent = `${context}`;
       // Style your evaluation div as needed
-      evaluationDiv.style.padding = '10px';
-      evaluationDiv.style.marginBottom = '10px'; // Add space below the container
-      evaluationDiv.style.backgroundColor = '#FFEBEE'; // Example styling with a light red background color
-      evaluationDiv.style.borderRadius = '4px'; // Rounded corners
-      evaluationDiv.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)'; // Optional shadow for better visibility
-      evaluationDiv.style.color = 'black';
-      
+      evaluationDiv.style.padding = "10px";
+      evaluationDiv.style.marginBottom = "10px"; // Add space below the container
+      evaluationDiv.style.backgroundColor = "#FFEBEE"; // Example styling with a light red background color
+      evaluationDiv.style.borderRadius = "4px"; // Rounded corners
+      evaluationDiv.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)"; // Optional shadow for better visibility
+      evaluationDiv.style.color = "black";
+
       switch (rating) {
-        case 'relevant':
-          evaluationDiv.style.backgroundColor = '#B9F6CA'; // Light green
+        case "relevant":
+          evaluationDiv.style.backgroundColor = "#B9F6CA"; // Light green
           break;
-        case 'not_sure':
-          evaluationDiv.style.backgroundColor = '#FFF9C4'; // Light yellow
+        case "not_sure":
+          evaluationDiv.style.backgroundColor = "#FFF9C4"; // Light yellow
           break;
-        case 'avoid':
-          evaluationDiv.style.backgroundColor = '#FFCDD2'; // Light red
+        case "avoid":
+          evaluationDiv.style.backgroundColor = "#FFCDD2"; // Light red
           break;
         default:
-          evaluationDiv.style.backgroundColor = '#FFFFFF'; // Default to white or another neutral color
+          evaluationDiv.style.backgroundColor = "#FFFFFF"; // Default to white or another neutral color
       }
       // Insert the new div before the title div
       aboveTheFoldDiv.insertBefore(evaluationDiv, titleDiv);
@@ -68,7 +70,7 @@ function insertEvaluationContainer(rating, context) {
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.message === 'displayEvaluation') {
+  if (request.message === "displayEvaluation") {
     const { rating, context } = request.evaluation;
     insertEvaluationContainer(rating, context);
   }
@@ -76,7 +78,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 function removeEvaluationContainer() {
-  const evaluationContainer = document.getElementById('evaluation-container');
+  const evaluationContainer = document.getElementById("evaluation-container");
   if (evaluationContainer) {
     evaluationContainer.remove();
   }
@@ -90,9 +92,9 @@ function setupNavigationObserver() {
   const config = { childList: true, subtree: true };
 
   // Callback to execute when mutations are observed
-  const callback = function(mutationsList, observer) {
+  const callback = function (mutationsList, observer) {
     for (const mutation of mutationsList) {
-      if (mutation.type === 'childList') {
+      if (mutation.type === "childList") {
         // If the URL has changed, remove the evaluation container
         if (window.location.href !== lastKnownLocation) {
           removeEvaluationContainer();
@@ -115,4 +117,4 @@ let lastKnownLocation = window.location.href;
 // Call the observer setup function when the content script is first injected
 setupNavigationObserver();
 
-chrome.runtime.sendMessage({ message: 'contentScriptReady' });
+chrome.runtime.sendMessage({ message: "contentScriptReady" });
