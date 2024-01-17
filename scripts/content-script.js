@@ -57,6 +57,9 @@ function insertEvaluationContainer(rating, context) {
         case "not_sure":
           evaluationDiv.style.backgroundColor = "#FFF9C4"; // Light yellow
           break;
+        case "irrelevant":
+          evaluationDiv.style.backgroundColor = "#FFD7B5"; // Light orange
+          break;
         case "avoid":
           evaluationDiv.style.backgroundColor = "#FFCDD2"; // Light red
           break;

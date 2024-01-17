@@ -15,14 +15,19 @@ function evaluateVideoRelevance(userGoal, videoTitle, apiKey, callback) {
   // Construct the prompt for the GPT model
   const systemPrompt = `You are a youtube addiction rehab expert, user will provide their goal and a video title they are watching.
     return a json response including two items. 
-    1. evaluation_rating ( three possible options: "relevant", "not_sure", "avoid")
+    1. evaluation_rating ( three possible options: "relevant", "not_sure", "irrelevant", "avoid")
     2. evaluation_context ( one sentence about the relavency for user’s goal and the video)
+    In the evaluation_context, it should only show one sentence, the sentence should be user facing. And follow the instruction for the tone. 
+    If rating is "relavent", make the tone positive.
+    If rating is "not_sure", make the tone neutral.
+    If rating is "irrelavent", try use an encouraging tone to let them go back on track.
+    If the user is "avoid", try to use a teasing but asserting tone to let them know they are watching something they should avoid. 
     Assume user understand the language of the video. Also return the evaluation_context in the same lanugage as the user's goal.`;
   const prompt = `Given the user's goal: "${userGoal}", evaluate if the following video title is relevant, should be avoided, or not sure: "${videoTitle}".`;
 
   // Configure the request payload
   const data = {
-    model: "gpt-4-1106-preview", // or another model of your choice
+    model: "gpt-3.5-turbo-1106", // or another model of your choice
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: prompt },
