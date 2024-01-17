@@ -114,3 +114,7 @@ function sendGetVideoDetailsMessage(tabId) {
     });
   });
 }
+
+chrome.action.onClicked.addListener(() => {
+  chrome.runtime.openOptionsPage();
+});
