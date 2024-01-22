@@ -10,23 +10,29 @@ function getStorageData(keys, callback) {
   });
 }
 
-// Function to increment the streak
-function updateStreak(rating) {
-  if (rating === "irrelevant" || rating === "avoid") {
-    chrome.storage.sync.get(["negativeStreak"], function (result) {
-      let currentStreak = result.negativeStreak || 0;
-      currentStreak++;
-      chrome.storage.sync.set({ negativeStreak: currentStreak });
-      chrome.storage.sync.set({ positiveStreak: 0 });
+function handleEvaluation(response, callback) {
+  const textResponse = response.choices[0].message.content.trim();
+  const responseObject = JSON.parse(textResponse);
+  let rating = responseObject.evaluation_rating;
+  let context = responseObject.evaluation_context;
+  let streakType = rating === "relevant" ? "positiveStreak" : "negativeStreak";
+  let oppositeStreakType =
+    rating === "relevant" ? "negativeStreak" : "positiveStreak";
+
+  chrome.storage.sync.get([streakType], function (result) {
+    let currentStreak = result[streakType] || 0;
+    currentStreak++;
+
+    let updates = {};
+    updates[streakType] = currentStreak;
+    updates[oppositeStreakType] = 0;
+
+    chrome.storage.sync.set(updates, function () {
+      if (callback) {
+        callback({ rating, context });
+      }
     });
-  } else if (rating === "relevant") {
-    chrome.storage.sync.get(["positiveStreak"], function (result) {
-      let currentStreak = result.positiveStreak || 0;
-      currentStreak++;
-      chrome.storage.sync.set({ positiveStreak: currentStreak });
-      chrome.storage.sync.set({ negativeStreak: 0 });
-    });
-  }
+  });
 }
 
 // Function to call OpenAI's GPT API
@@ -67,14 +73,7 @@ function evaluateVideoRelevance(userGoal, videoTitle, apiKey, callback) {
   })
     .then((response) => response.json())
     .then((response) => {
-      // Process the response to extract the evaluation
-      // Assuming the AI's response follows a known structure in its text.
-      const textResponse = response.choices[0].message.content.trim();
-      const responseObject = JSON.parse(textResponse);
-      let rating = responseObject.evaluation_rating;
-      let context = responseObject.evaluation_context;
-      updateStreak(rating);
-      callback({ rating, context });
+      handleEvaluation(response, callback);
     })
     .catch((error) => {
       console.error("Error calling OpenAI API:", error);
