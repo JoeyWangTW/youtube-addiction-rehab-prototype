@@ -177,3 +177,21 @@ let lastKnownLocation = window.location.href;
 setupNavigationObserver();
 
 chrome.runtime.sendMessage({ message: "contentScriptReady" });
+
+chrome.storage.sync.get(["hideSidebar"], function (items) {
+  if (items.hideSidebar) {
+    const styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.innerText = "#related { display: none; }";
+    document.head.appendChild(styleSheet);
+  }
+});
+
+chrome.storage.sync.get(["hideHomepageContent"], function (items) {
+  if (items.hideHomepageContent) {
+    const styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.innerText = ".ytd-rich-grid-renderer { display: none; }";
+    document.head.appendChild(styleSheet);
+  }
+});
