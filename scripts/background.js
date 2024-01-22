@@ -10,13 +10,33 @@ function getStorageData(keys, callback) {
   });
 }
 
+// Function to increment the streak
+function updateStreak(rating) {
+  if (rating === "irrelevant" || rating === "avoid") {
+    chrome.storage.sync.get(["negativeStreak"], function (result) {
+      let currentStreak = result.negativeStreak || 0;
+      currentStreak++;
+      chrome.storage.sync.set({ negativeStreak: currentStreak });
+      chrome.storage.sync.set({ positiveStreak: 0 });
+    });
+  } else if (rating === "relevant") {
+    chrome.storage.sync.get(["positiveStreak"], function (result) {
+      let currentStreak = result.positiveStreak || 0;
+      currentStreak++;
+      chrome.storage.sync.set({ positiveStreak: currentStreak });
+      chrome.storage.sync.set({ negativeStreak: 0 });
+    });
+  }
+}
+
 // Function to call OpenAI's GPT API
 function evaluateVideoRelevance(userGoal, videoTitle, apiKey, callback) {
   // Construct the prompt for the GPT model
   const systemPrompt = `You are a youtube addiction rehab expert, user will provide their goal and a video title they are watching.
     return a json response including two items. 
     1. evaluation_rating ( three possible options: "relevant", "not_sure", "irrelevant", "avoid")
-    2. evaluation_context ( one sentence about the relavency for user’s goal and the video)
+    2. evaluation_context ( one sentence about what's the video about and the relavency for user’s goal and the video)
+    Make sure you go thorugh all the user's goal, and rate relevancy based on all of them. 
     In the evaluation_context, it should only show one sentence, the sentence should be user facing. And follow the instruction for the tone. 
     If rating is "relavent", make the tone positive.
     If rating is "not_sure", make the tone neutral.
@@ -51,9 +71,9 @@ function evaluateVideoRelevance(userGoal, videoTitle, apiKey, callback) {
       // Assuming the AI's response follows a known structure in its text.
       const textResponse = response.choices[0].message.content.trim();
       const responseObject = JSON.parse(textResponse);
-
       let rating = responseObject.evaluation_rating;
       let context = responseObject.evaluation_context;
+      updateStreak(rating);
       callback({ rating, context });
     })
     .catch((error) => {
@@ -106,9 +126,12 @@ function sendGetVideoDetailsMessage(tabId) {
       const videoTitle = response.title;
 
       evaluateVideoRelevance(userGoal, videoTitle, openAIKey, (evaluation) => {
-        chrome.tabs.sendMessage(tabId, {
-          message: "displayEvaluation",
-          evaluation: evaluation,
+        getStorageData(["negativeStreak", "positiveStreak"], (items) => {
+          chrome.tabs.sendMessage(tabId, {
+            message: "displayEvaluation",
+            evaluation: evaluation,
+            streaks: items,
+          });
         });
       });
     });

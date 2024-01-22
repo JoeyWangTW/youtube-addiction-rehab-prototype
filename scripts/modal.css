@@ -1,0 +1,52 @@
+/* Overlay covering the entire page */
+#modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 50% opacity black background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal container */
+#modalContainer {
+  background-color: white;
+  width: 40%;
+  padding: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 10px; /* Rounded corners */
+  text-align: center;
+}
+
+/* Text styling */
+#modalContainer h2, #modalContainer p {
+  color: black; /* Black text */
+}
+
+.modal-body {
+  margin-top: 20px;
+}
+
+.modal-footer {
+  text-align: center; /* Center align children */
+  margin-top: 20px;
+}
+
+/* Button styling */
+#closeModal {
+  padding: 8px 15px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px; /* Rounded borders */
+  cursor: pointer;
+  display: inline-block; /* Allows text-align center to work on parent */
+}
+
+#closeModal:hover {
+  background-color: #0056b3;
+}

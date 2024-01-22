@@ -15,6 +15,54 @@ function waitForElement(selector, callback) {
   });
 }
 
+function createModalWithCountdown(streaks) {
+  // Create overlay
+  const overlay = document.createElement("div");
+  overlay.id = "modalOverlay";
+  document.body.appendChild(overlay);
+
+  // Create modal container
+  const modal = document.createElement("div");
+  modal.id = "modalContainer";
+  modal.innerHTML = `
+    <h2 id="modal-title"></h2>
+    <p class="modal-body">Step back, breathe, and refocus. Your goals are waiting for you!</p>
+    <div class="modal-footer">
+      <span id="countdown">5</span>
+      <button id="closeModal">Dismiss</button>
+    </div>
+  `;
+  overlay.appendChild(modal);
+  let title = "Just Checking In: " + streaks + " Off-Goal Videos";
+  const modalTitle = document.getElementById("modal-title");
+  modalTitle.textContent = title;
+
+  // Countdown logic
+  let countdownValue = 5;
+  const countdown = document.getElementById("countdown");
+  const dismissButton = document.getElementById("closeModal");
+  dismissButton.style.display = "none";
+  const interval = setInterval(() => {
+    countdownValue--;
+    countdown.textContent = countdownValue;
+    if (countdownValue <= 0) {
+      clearInterval(interval);
+      countdown.style.display = "none";
+      dismissButton.style.display = "inline-block";
+      dismissButton.onclick = () => {
+        overlay.remove();
+      };
+    }
+  }, 1500);
+}
+
+function pauseYouTubeVideo() {
+  const videoPlayer = document.querySelector("video.html5-main-video");
+  if (videoPlayer) {
+    videoPlayer.pause(); // Pause the video
+  }
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.message === "getVideoDetails") {
     waitForElement(
@@ -75,6 +123,14 @@ function insertEvaluationContainer(rating, context) {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.message === "displayEvaluation") {
     const { rating, context } = request.evaluation;
+    const streaks = request.streaks;
+
+    console.log(streaks.negativeStreak);
+    if (streaks.negativeStreak >= 5) {
+      pauseYouTubeVideo();
+      createModalWithCountdown(streaks.negativeStreak);
+    }
+
     insertEvaluationContainer(rating, context);
   }
   // ... other message handling ...
