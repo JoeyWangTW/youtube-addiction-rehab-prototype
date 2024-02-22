@@ -7,11 +7,36 @@
 </head>
 <body>
     <div>
-        <label for="goal">Goal:</label>
+        <label for="personal">Personal Goal and Passion</label>
     </div>
     <div>
-        <textarea type="text" id="goal"></textarea>
+        <textarea type="text" id="personal"></textarea>
     </div>
+    <div>
+        <label for="addiction">Goal to Improve Addiction:</label>
+    </div>
+    <div>
+        <textarea type="text" id="addiction"></textarea>
+    </div>
+    <div>
+        <button id="getPlan">Get Plan</button>
+    </div>
+    <div>
+        <p>Your Plan:</p>
+        <div id="resultDisplayArea"></div>
+    </div>
+
+    <hr>
+    <label for="daySelect">Select Day:</label>
+    <select id="daySelect">
+        <!-- Options will be dynamically populated -->
+    </select>
+    <button id="setDayPlan">Save Day Plan</button>
+    <div>Today's Plan</div>
+    <p id="rule"></p>
+    <p id="actionItem"></p>
+    <p id="limit"></p>
+    <hr>
     <div>
         <label>
             <input type="checkbox" id="hideRecommendations"> Full Focus Mode (hide home page and side bar recommendations) 
