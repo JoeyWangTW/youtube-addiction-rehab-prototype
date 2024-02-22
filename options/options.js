@@ -2,18 +2,15 @@
 function saveOptions() {
   var goal = document.getElementById("goal").value;
   var apiKey = document.getElementById("apiKey").value;
-  const hideSidebar = document.getElementById("hideSidebar").checked;
-  const hideHomepageContent = document.getElementById(
-    "hideHomepageContent"
+  const hideRecommendations = document.getElementById(
+    "hideRecommendations"
   ).checked;
-  console.warn(hideSidebar, hideHomepageContent);
 
   chrome.storage.sync.set(
     {
       userGoal: goal,
       openAIKey: apiKey,
-      hideSidebar: hideSidebar,
-      hideHomepageContent: hideHomepageContent,
+      hideRecommendations: hideRecommendations,
     },
     function () {
       // Update status to let user know options were saved.
@@ -29,15 +26,13 @@ function restoreOptions() {
       userGoal: "",
       openAIKey: "",
       hideSidebar: false,
-      hideHomepageContent: false,
+      hideRecommendations: false,
     },
     function (items) {
-      console.warn(items);
       document.getElementById("goal").value = items.userGoal;
       document.getElementById("apiKey").value = items.openAIKey;
-      document.getElementById("hideSidebar").checked = items.hideSidebar;
-      document.getElementById("hideHomepageContent").checked =
-        items.hideHomepageContent;
+      document.getElementById("hideRecommendations").checked =
+        items.hideRecommendations;
     }
   );
 }
