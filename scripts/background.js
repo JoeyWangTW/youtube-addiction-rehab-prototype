@@ -36,7 +36,8 @@ function handleEvaluation(response, callback) {
 }
 
 // Function to call OpenAI's GPT API
-function evaluateVideoRelevance(userGoal, videoTitle, apiKey, callback) {
+function evaluateVideoRelevance(currentDayPlan, videoTitle, apiKey, callback) {
+  console.warn(currentDayPlan);
   // Construct the prompt for the GPT model
   const systemPrompt = `You are a youtube addiction rehab expert, user will provide their goal and a video title they are watching.
     return a json response including two items. 
@@ -49,7 +50,7 @@ function evaluateVideoRelevance(userGoal, videoTitle, apiKey, callback) {
     If rating is "irrelavent", try use an encouraging tone to let them go back on track.
     If the user is "avoid", try to use a teasing but asserting tone to let them know they are watching something they should avoid. 
     Assume user understand the language of the video. Also return the evaluation_context in the same lanugage as the user's goal.`;
-  const prompt = `Given the user's goal: "${userGoal}", evaluate if the following video title is relevant, should be avoided, or not sure: "${videoTitle}".`;
+  const prompt = `Given the user's white list watch catagory: "${currentDayPlan.allowed_catagory}", evaluate if the following video title is relevant, should be avoided, or not sure: "${videoTitle}".`;
 
   // Configure the request payload
   const data = {
@@ -119,20 +120,25 @@ function sendGetVideoDetailsMessage(tabId) {
     }
     console.log("Title:", response.title);
     // Here, you would add code to call the OpenAI GPT API and process the response
-    getStorageData(["userGoal", "openAIKey"], (items) => {
-      const userGoal = items.userGoal;
+    getStorageData(["currentDayPlan", "openAIKey"], (items) => {
+      const currentDayPlan = items.currentDayPlan;
       const openAIKey = items.openAIKey;
       const videoTitle = response.title;
 
-      evaluateVideoRelevance(userGoal, videoTitle, openAIKey, (evaluation) => {
-        getStorageData(["negativeStreak", "positiveStreak"], (items) => {
-          chrome.tabs.sendMessage(tabId, {
-            message: "displayEvaluation",
-            evaluation: evaluation,
-            streaks: items,
+      evaluateVideoRelevance(
+        currentDayPlan,
+        videoTitle,
+        openAIKey,
+        (evaluation) => {
+          getStorageData(["negativeStreak", "positiveStreak"], (items) => {
+            chrome.tabs.sendMessage(tabId, {
+              message: "displayEvaluation",
+              evaluation: evaluation,
+              streaks: items,
+            });
           });
-        });
-      });
+        }
+      );
     });
   });
 }
