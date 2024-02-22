@@ -65,6 +65,19 @@ function setDayPlan() {
   });
 }
 
+function clearPlan() {
+  chrome.storage.sync.set(
+    {
+      plan: "",
+      execution: "",
+    },
+    function () {
+      // Update status to let user know options were saved.
+      console.log("Plan cleared.");
+    }
+  );
+}
+
 function getPlan() {
   var button = document.getElementById("getPlan");
   // Disable the button and change the text to indicate loading
@@ -169,4 +182,5 @@ function restoreOptions() {
 document.addEventListener("DOMContentLoaded", restoreOptions);
 document.getElementById("save").addEventListener("click", saveOptions);
 document.getElementById("getPlan").addEventListener("click", getPlan);
+document.getElementById("clearPlan").addEventListener("click", clearPlan);
 document.getElementById("setDayPlan").addEventListener("click", setDayPlan);
